@@ -5,15 +5,13 @@
     <description>lidehua - It's my life</description>
     <link></link>
     <atom:link href="/page/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 23 Apr 2015 14:20:05 +0800</pubDate>
-    <lastBuildDate>Thu, 23 Apr 2015 14:20:05 +0800</lastBuildDate>
+    <pubDate>Thu, 23 Apr 2015 14:20:38 +0800</pubDate>
+    <lastBuildDate>Thu, 23 Apr 2015 14:20:38 +0800</lastBuildDate>
     <generator></generator>
     
       <item>
         <title>第一篇文章</title>
         <description>&lt;p&gt;创建个人博客的第一篇文章&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/icon-72.png&quot; alt=&quot;Alt tu&quot; /&gt;&lt;/p&gt;
 </description>
         <pubDate>Mon, 09 Mar 2015 00:00:00 +0800</pubDate>
         <link>/blog/2015/03/09/low.html</link>
