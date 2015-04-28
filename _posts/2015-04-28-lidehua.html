@@ -1,22 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>RSS - lidehua</title>
-    <description>lidehua - It's my life</description>
-    <link></link>
-    <atom:link href="/page/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 23 Apr 2015 15:53:48 +0800</pubDate>
-    <lastBuildDate>Thu, 23 Apr 2015 15:53:48 +0800</lastBuildDate>
-    <generator></generator>
-    
-      <item>
-        <title>使用jenkins打包iOS遇到的问题</title>
-        <description>&lt;!DOCTYPE html&gt;&lt;html&gt;
+---
+layout: post
+title: objc_msgSend在64位中崩溃的问题
+category: iOS开发
+date: 2015-04-28
+---
+<!DOCTYPE html><html>
 
-&lt;head&gt;
-&lt;meta charset=&quot;utf-8&quot;&gt;
-&lt;title&gt;2015-04-23-lidehua&lt;/title&gt;
-&lt;style type=&quot;text/css&quot;&gt;
+<head>
+<meta charset="utf-8">
+<title>1</title>
+<style type="text/css">
 body {
   font-family: Helvetica, arial, sans-serif;
   font-size: 14px;
@@ -26,9 +19,9 @@ body {
   background-color: white;
   padding: 30px; }
 
-body &gt; *:first-child {
+body > *:first-child {
   margin-top: 0 !important; }
-body &gt; *:last-child {
+body > *:last-child {
   margin-bottom: 0 !important; }
 
 a {
@@ -108,16 +101,16 @@ hr {
   padding: 0;
 }
 
-body &gt; h2:first-child {
+body > h2:first-child {
   margin-top: 0;
   padding-top: 0; }
-body &gt; h1:first-child {
+body > h1:first-child {
   margin-top: 0;
   padding-top: 0; }
-  body &gt; h1:first-child + h2 {
+  body > h1:first-child + h2 {
     margin-top: 0;
     padding-top: 0; }
-body &gt; h3:first-child, body &gt; h4:first-child, body &gt; h5:first-child, body &gt; h6:first-child {
+body > h3:first-child, body > h4:first-child, body > h5:first-child, body > h6:first-child {
   margin-top: 0;
   padding-top: 0; }
 
@@ -148,25 +141,25 @@ dl {
     margin: 15px 0 5px; }
     dl dt:first-child {
       padding: 0; }
-    dl dt &gt; :first-child {
+    dl dt > :first-child {
       margin-top: 0; }
-    dl dt &gt; :last-child {
+    dl dt > :last-child {
       margin-bottom: 0; }
   dl dd {
     margin: 0 0 15px;
     padding: 0 15px; }
-    dl dd &gt; :first-child {
+    dl dd > :first-child {
       margin-top: 0; }
-    dl dd &gt; :last-child {
+    dl dd > :last-child {
       margin-bottom: 0; }
 
 blockquote {
   border-left: 4px solid #dddddd;
   padding: 0 15px;
   color: #777777; }
-  blockquote &gt; :first-child {
+  blockquote > :first-child {
     margin-top: 0; }
-  blockquote &gt; :last-child {
+  blockquote > :last-child {
     margin-bottom: 0; }
 
 table {
@@ -198,7 +191,7 @@ img {
 span.frame {
   display: block;
   overflow: hidden; }
-  span.frame &gt; span {
+  span.frame > span {
     border: 1px solid #dddddd;
     display: block;
     float: left;
@@ -218,7 +211,7 @@ span.align-center {
   display: block;
   overflow: hidden;
   clear: both; }
-  span.align-center &gt; span {
+  span.align-center > span {
     display: block;
     overflow: hidden;
     margin: 13px auto 0;
@@ -230,7 +223,7 @@ span.align-right {
   display: block;
   overflow: hidden;
   clear: both; }
-  span.align-right &gt; span {
+  span.align-right > span {
     display: block;
     overflow: hidden;
     margin: 13px 0 0;
@@ -250,7 +243,7 @@ span.float-right {
   margin-left: 13px;
   overflow: hidden;
   float: right; }
-  span.float-right &gt; span {
+  span.float-right > span {
     display: block;
     overflow: hidden;
     margin: 13px auto 0;
@@ -314,55 +307,19 @@ sup {
 		word-wrap: break-word;
 	}
 }
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;p&gt;近几天研究了一下使用jenkins打包iOS,遇到了很多的问题,现在把遇到的问题记录下来只当是做个笔记.&lt;/p&gt;
-
-&lt;h1 id=&quot;toc_0&quot;&gt;1.安装jenkins&lt;/br&gt;&lt;/h1&gt;
-
-&lt;p&gt;可以从官网下载pkg包进行安装,装完自动运行jenkins,安装目录会在/用户/共享/jenkins,但是这样安装jenkins会遇到权限问题,从网上找修改安装目录也没有成功,于是卸载改用homebrew安装.&lt;/br&gt;
-终端运行brew install jenkins&lt;/br&gt;
-jenkins会被安装到/usr/local/Cellar/jenkins&lt;/br&gt;
-运行jenkins launchctl load /usr/local/Cellar/jenkins/1.600/homebrew.mxcl.jenkins.plist&lt;/br&gt;
-停止jenkins launchctl unload /usr/local/Cellar/jenkins/1.600/homebrew.mxcl.jenkins.plist&lt;/br&gt;
-也可以执行/用户/用户名/资源库/LaunchAgents/homebrew.mxcl.jenkins.plist
-然后会在/用户/用户名/.jenkins下生成主目录
-如果执行的时候是sudo执行的,就会在/var/root/.jenkins下生成主目录&lt;/br&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;toc_1&quot;&gt;2.xcode插件&lt;/br&gt;&lt;/h1&gt;
-
-&lt;p&gt;安装xcode插件,重启jenkins.如果使用构建本地项目,源码管理选择none,使用svn选择Subversion,Local module directory默认是在该job下的workspace,如果要改,要使用相对路径.是当前目录,..是上层目录.&lt;/br&gt;
-如果工程文件是workspace,在配置xcode的时候要填写Xcode Schema File,Xcode Workspace File和Xcode Project Directory,如果是刚从svn服务器上copy下来的要先用xcode打开一次,否则直接在jenkins打包会出现在workspace no schema的情况.&lt;/br&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;toc_2&quot;&gt;3.远程访问jenkins&lt;/br&gt;&lt;/h1&gt;
-
-&lt;p&gt;如果是sudo开启的jenkins远程访问没有问题,如果没有用sudo开启,默认是不能访问,可以关掉防火墙进行访问&lt;/p&gt;
+</style>
+</head>
+<body>
+<p>在适配64位的时候,程序会在objc<em>msgSend处崩溃,根据苹果的官方文档需要转换<br/>
+<pre>- (int) doSomething:(int) x { ... }<br/>
+- (void) doSomethingElse {<br/>
+    int (<em>action)(id, SEL, int) = (int (</em>)(id, SEL, int)) objc</em>msgSend;<br/>
+    action(self, @selector(doSomething:), 0);
+}
+</pre>
+<a href="https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/ConvertingYourAppto64-Bit/ConvertingYourAppto64-Bit.html">苹果官方文档地址</a></p>
 
 
-&lt;/body&gt;
+</body>
 
-&lt;/html&gt;
-</description>
-        <pubDate>Thu, 23 Apr 2015 00:00:00 +0800</pubDate>
-        <link>/blog/2015/04/23/lidehua.html</link>
-        <guid isPermaLink="true">/blog/2015/04/23/lidehua.html</guid>
-        
-        <category>ios开发</category>
-        
-      </item>
-    
-      <item>
-        <title>第一篇文章</title>
-        <description>&lt;p&gt;创建个人博客的第一篇文章&lt;/p&gt;
-</description>
-        <pubDate>Mon, 09 Mar 2015 00:00:00 +0800</pubDate>
-        <link>/blog/2015/03/09/low.html</link>
-        <guid isPermaLink="true">/blog/2015/03/09/low.html</guid>
-        
-        <category>随便写写</category>
-        
-      </item>
-    
-  </channel>
-</rss>
+</html>
