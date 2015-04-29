@@ -5,9 +5,22 @@
     <description>lidehua - It's my life</description>
     <link></link>
     <atom:link href="/page/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 28 Apr 2015 16:51:36 +0800</pubDate>
-    <lastBuildDate>Tue, 28 Apr 2015 16:51:36 +0800</lastBuildDate>
+    <pubDate>Wed, 29 Apr 2015 16:38:45 +0800</pubDate>
+    <lastBuildDate>Wed, 29 Apr 2015 16:38:45 +0800</lastBuildDate>
     <generator></generator>
+    
+      <item>
+        <title>Lidehua</title>
+        <description>&lt;p&gt;模仿知乎日报的侧滑返回
+&lt;img src=&quot;/images/2015-04-29 16_11_50.gif&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/lidee92805/zhihuNavigate&quot;&gt;github地址&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Wed, 29 Apr 2015 00:00:00 +0800</pubDate>
+        <link>/blog/2015/04/29/lidehua.html</link>
+        <guid isPermaLink="true">/blog/2015/04/29/lidehua.html</guid>
+        
+      </item>
     
       <item>
         <title>objc_msgSend在64位中崩溃的问题</title>
