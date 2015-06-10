@@ -59,13 +59,86 @@
 <div class="posts">
   <section class="post">
     <header class="post-header">
-      <h1 class="post-title"><a href="/blog/2015/04/29/lidehua.html">Lidehua</a></h1>
+      <h1 class="post-title"><a href="/blog/2015/06/09/lidehua.html">通过NSURLProtocol实现URL重定向</a></h1>
       <p class="post-meta">
         <i class="fa fa-calendar"></i>
-        2015年04月29日
+        2015年06月09日
         <i class="space"></i>
         <i class="fa fa-tags"></i>
-        <a class="post-category" href="/page/category.html#"></a>
+        <a class="post-category" href="/page/category.html#ios开发">ios开发</a>
+      </p>
+    </header>
+    <div class="post-main">
+      <p>开发项目时,经常需要切换内外网进行调试,目前采用的方法是定义DEBUG_MODE的宏,编译不同的HTTP的header.感觉不太灵活,觉得在程序中直接控制发送的网络的URL进行内外网的切换.在看到<a href="http://xiangwangfeng.com/2014/11/29/NSURLProtocol%E5%92%8CNSRunLoop%E7%9A%84%E9%82%A3%E4%BA%9B%E5%9D%91/">阿毛的蛋疼地的文章</a>知道了NSURLProtocol,于是进行尝试.&lt;/br&gt;
+要对URL进行重定向,就要在对Request的host进行更改,代码如下&lt;/br&gt;</p>
+<pre>
++ (BOOL)canInitWithRequest:(NSURLRequest *)request {
+    NSLog(@"%@",request.URL);
+    if ([NSURLProtocol propertyForKey:@"LDHURLProtocolKey" inRequest:request]) {
+        return NO;
+    }
+    return YES;
+}
++ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request {
+    return request;
+}
+- (void)startLoading {
+    NSMutableURLRequest * mutableRequest = [self.request mutableCopy];
+    NSURLComponents * URLComponents = [NSURLComponents componentsWithString:[[mutableRequest URL] absoluteString]];
+    if ([URLComponents.host isEqualToString:@"www.baidu.com"]) {
+        URLComponents.host = @"www.163.com";
+    }
+    [NSURLProtocol setProperty:@YES forKey:@"LDHURLProtocolKey" inRequest:mutableRequest];
+    mutableRequest.URL = [URLComponents URL];
+    _connection = [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+}
+</pre>
+<p>&lt;/br&gt;
+<img src="/images/2015年6月9日01.png" alt="Alt text" />&lt;/br&gt;
+后来又尝试在+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request中修改request,修改代码如下&lt;/br&gt;</p>
+<pre>
++ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request {
+    NSMutableURLRequest * mutableRequest = [request mutableCopy];
+    NSURLComponents * URLComponents = [NSURLComponents componentsWithString:[[mutableRequest URL] absoluteString]];
+    if ([URLComponents.host isEqualToString:@"www.baidu.com"]) {
+        URLComponents.host = @"www.163.com";
+    }  
+    [NSURLProtocol setProperty:@YES forKey:@"LDHURLProtocolKey" inRequest:mutableRequest];
+    mutableRequest.URL = [URLComponents URL];
+    return mutableRequest;
+//    return request;
+}
+- (void)startLoading {
+    _connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+}
+</pre>
+<p>&lt;/br&gt;
+在iOS8上运行OK,在iOS7上会循环调用网络请求,不能正常运行,可见在iOS8上苹果优化了 URL Loading System,在参考了<a href="https://github.com/mattt/NSEtcHosts">NSEtcHosts</a>后
+修改startLoading中代码</p>
+<pre>
+- (void)startLoading {
+    //    _connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+        _connection = [NSURLConnection connectionWithRequest:[[self class] canonicalRequestForRequest:self.request] delegate:self];
+}
+</pre>
+<p>在iOS7上运行正常,加个switch控制URLProtocol是否,因为NSURLComponents是iOS7之后出现的类,在iOS6上需要对request的url进行解析出host进行判断,然后创建新的url替换request的url,未进行测试.&lt;/br&gt;
+<a href="https://github.com/lidee92805/URLRedirection">demo</a>已经放到github上</p>
+
+      <div class="readall"><a href="/blog/2015/06/09/lidehua.html" id="post-readall">阅读全文&nbsp;<i class="fa fa-chevron-right"></i></a></div>
+    </div>
+  </section>
+</div>
+
+<div class="posts">
+  <section class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a href="/blog/2015/04/28/lidehua.html">模仿知乎日报的侧滑返回</a></h1>
+      <p class="post-meta">
+        <i class="fa fa-calendar"></i>
+        2015年04月28日
+        <i class="space"></i>
+        <i class="fa fa-tags"></i>
+        <a class="post-category" href="/page/category.html#ios开发">ios开发</a>
       </p>
     </header>
     <div class="post-main">
@@ -74,7 +147,7 @@
 
 <p><a href="https://github.com/lidee92805/zhihuNavigate">github地址</a></p>
 
-      <div class="readall"><a href="/blog/2015/04/29/lidehua.html" id="post-readall">阅读全文&nbsp;<i class="fa fa-chevron-right"></i></a></div>
+      <div class="readall"><a href="/blog/2015/04/28/lidehua.html" id="post-readall">阅读全文&nbsp;<i class="fa fa-chevron-right"></i></a></div>
     </div>
   </section>
 </div>
@@ -771,7 +844,7 @@ jenkins会被安装到/usr/local/Cellar/jenkins</br>
 <div class="posts">
   <section class="post">
     <header class="post-header">
-      <h1 class="post-title"><a href="/blog/2015/03/09/low.html">第一篇文章</a></h1>
+      <h1 class="post-title"><a href="/blog/2015/03/09/lidehua.html">第一篇文章</a></h1>
       <p class="post-meta">
         <i class="fa fa-calendar"></i>
         2015年03月09日
@@ -783,7 +856,7 @@ jenkins会被安装到/usr/local/Cellar/jenkins</br>
     <div class="post-main">
       <p>创建个人博客的第一篇文章</p>
 
-      <div class="readall"><a href="/blog/2015/03/09/low.html" id="post-readall">阅读全文&nbsp;<i class="fa fa-chevron-right"></i></a></div>
+      <div class="readall"><a href="/blog/2015/03/09/lidehua.html" id="post-readall">阅读全文&nbsp;<i class="fa fa-chevron-right"></i></a></div>
     </div>
   </section>
 </div>

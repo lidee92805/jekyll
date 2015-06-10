@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <meta name="description" content="lidehua">
   <meta name="author" content="">
-  <meta name="keywords" content="文章分类, lidehua, ">
-  <title>文章分类 - lidehua</title>
-  <link rel="canonical" href="/page/category.html">
+  <meta name="keywords" content="通过NSURLProtocol实现URL重定向, lidehua, ">
+  <title>通过NSURLProtocol实现URL重定向 - lidehua</title>
+  <link rel="canonical" href="/blog/2015/06/09/lidehua.html">
   <link rel="icon" href="/res/img/favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="/res/img/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/res/css/public.css">
@@ -55,44 +55,95 @@
   </div>
 </div>
     <div class="main">
-    <link rel="stylesheet" href="/res/css/page.css">
+    <header class="post-header">
+  <h1 class="post-title"><a href="/blog/2015/06/09/lidehua.html">通过NSURLProtocol实现URL重定向</a></h2>
+  <p class="post-meta">
+    <i class="fa fa-calendar"></i>
+    2015年06月09日
+    <i class="space"></i>
+    <i class="fa fa-tags"></i>
+    <a class="post-category" href="/page/category.html#ios开发">ios开发</a>	
+  </p>
+</header>
+<div class="post-main">
+<p>开发项目时,经常需要切换内外网进行调试,目前采用的方法是定义DEBUG_MODE的宏,编译不同的HTTP的header.感觉不太灵活,觉得在程序中直接控制发送的网络的URL进行内外网的切换.在看到<a href="http://xiangwangfeng.com/2014/11/29/NSURLProtocol%E5%92%8CNSRunLoop%E7%9A%84%E9%82%A3%E4%BA%9B%E5%9D%91/">阿毛的蛋疼地的文章</a>知道了NSURLProtocol,于是进行尝试.&lt;/br&gt;
+要对URL进行重定向,就要在对Request的host进行更改,代码如下&lt;/br&gt;</p>
+<pre>
++ (BOOL)canInitWithRequest:(NSURLRequest *)request {
+    NSLog(@"%@",request.URL);
+    if ([NSURLProtocol propertyForKey:@"LDHURLProtocolKey" inRequest:request]) {
+        return NO;
+    }
+    return YES;
+}
++ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request {
+    return request;
+}
+- (void)startLoading {
+    NSMutableURLRequest * mutableRequest = [self.request mutableCopy];
+    NSURLComponents * URLComponents = [NSURLComponents componentsWithString:[[mutableRequest URL] absoluteString]];
+    if ([URLComponents.host isEqualToString:@"www.baidu.com"]) {
+        URLComponents.host = @"www.163.com";
+    }
+    [NSURLProtocol setProperty:@YES forKey:@"LDHURLProtocolKey" inRequest:mutableRequest];
+    mutableRequest.URL = [URLComponents URL];
+    _connection = [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+}
+</pre>
+<p>&lt;/br&gt;
+<img src="/images/2015年6月9日01.png" alt="Alt text" />&lt;/br&gt;
+后来又尝试在+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request中修改request,修改代码如下&lt;/br&gt;</p>
+<pre>
++ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request {
+    NSMutableURLRequest * mutableRequest = [request mutableCopy];
+    NSURLComponents * URLComponents = [NSURLComponents componentsWithString:[[mutableRequest URL] absoluteString]];
+    if ([URLComponents.host isEqualToString:@"www.baidu.com"]) {
+        URLComponents.host = @"www.163.com";
+    }  
+    [NSURLProtocol setProperty:@YES forKey:@"LDHURLProtocolKey" inRequest:mutableRequest];
+    mutableRequest.URL = [URLComponents URL];
+    return mutableRequest;
+//    return request;
+}
+- (void)startLoading {
+    _connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+}
+</pre>
+<p>&lt;/br&gt;
+在iOS8上运行OK,在iOS7上会循环调用网络请求,不能正常运行,可见在iOS8上苹果优化了 URL Loading System,在参考了<a href="https://github.com/mattt/NSEtcHosts">NSEtcHosts</a>后
+修改startLoading中代码</p>
+<pre>
+- (void)startLoading {
+    //    _connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+        _connection = [NSURLConnection connectionWithRequest:[[self class] canonicalRequestForRequest:self.request] delegate:self];
+}
+</pre>
+<p>在iOS7上运行正常,加个switch控制URLProtocol是否,因为NSURLComponents是iOS7之后出现的类,在iOS6上需要对request的url进行解析出host进行判断,然后创建新的url替换request的url,未进行测试.&lt;/br&gt;
+<a href="https://github.com/lidee92805/URLRedirection">demo</a>已经放到github上</p>
 
-
-<h2 class="category">分类</h2>
-<div class="category-box">
-  <ul>
-    
-    
-    <li class="category-box-sub"><a href="#ios开发">ios开发&nbsp;<sup>4</sup></a></li>
-    
-    
-    <li class="category-box-sub"><a href="#随便写写">随便写写&nbsp;<sup>1</sup></a></li>
-    
-  </ul>
 </div>
-<hr id="line"/>
+<div class="share">
+  <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more"></a>
+    <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+  </div>
+  <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":["qzone","tsina","weixin","sqq"],"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/res/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</div>
+<div class="pagination">
+
+<a class="pagination-item newer" href="/blog/2015/04/28/lidehua.html"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;模仿知乎日报的侧滑返回</a>
 
 
-<h2 class="category" id="ios开发">ios开发</h2>
+<span class="pagination-item older">下一篇&nbsp;<i class="fa fa-chain-broken"></i></span>
 
-<ul><li class="category-sub">2015-06-09&nbsp;&nbsp;&raquo;&nbsp;&nbsp;<a class="category-sub-title" href="/blog/2015/06/09/lidehua.html">通过NSURLProtocol实现URL重定向</a></li></ul>
-
-<ul><li class="category-sub">2015-04-28&nbsp;&nbsp;&raquo;&nbsp;&nbsp;<a class="category-sub-title" href="/blog/2015/04/28/lidehua.html">模仿知乎日报的侧滑返回</a></li></ul>
-
-<ul><li class="category-sub">2015-04-28&nbsp;&nbsp;&raquo;&nbsp;&nbsp;<a class="category-sub-title" href="/blog/2015/04/28/lidehua.html">objc_msgSend在64位中崩溃的问题</a></li></ul>
-
-<ul><li class="category-sub">2015-04-23&nbsp;&nbsp;&raquo;&nbsp;&nbsp;<a class="category-sub-title" href="/blog/2015/04/23/lidehua.html">使用jenkins打包iOS遇到的问题</a></li></ul>
-
-
-
-<h2 class="category" id="随便写写">随便写写</h2>
-
-<ul><li class="category-sub">2015-03-09&nbsp;&nbsp;&raquo;&nbsp;&nbsp;<a class="category-sub-title" href="/blog/2015/03/09/lidehua.html">第一篇文章</a></li></ul>
-
-
-<br/><br/>
-
-    
+</div>
+<style>#ds-reset .ds-avatar, #ds-reset .ds-avatar img{border-radius:50%;}</style>
+<script type="text/javascript">var duoshuoQuery = {short_name:""};(function(){var ds = document.createElement('script');ds.type = 'text/javascript';ds.async = true;ds.src = '/res/js/embed.js';ds.charset = 'UTF-8';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);})();</script>
+<div class="comments">
+  <div class="ds-thread" data-title="通过NSURLProtocol实现URL重定向" data-thread-key="/blog/2015/06/09/lidehua" data-url="/blog/2015/06/09/lidehua.html"></div>
+</div>
+    <footer>Copyright&nbsp;&copy;&nbsp;2015 <a href="">lidehua</a><br/><i class="fa fa-cogs" style="color:blueviolet;">&nbsp;</i>Powered by <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></footer>
     </div>
   </div>    
   <div id="top"><a id="rocket" href="javascript:;" title="返回顶部"><i></i></a></div>
